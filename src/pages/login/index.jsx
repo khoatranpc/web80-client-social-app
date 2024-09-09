@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Form, Input } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert, Button, Form, Input } from 'antd';
 import './styles.scss';
-
+import { queryAuthenticated } from '../../store/slice-reducers/authenticated';
+/**
+ * 
+ * Xác định định dạng dữ liệu chung, cho toàn bộ hệ thống
+ * state {
+ *      data,
+ *      isLoading: boolean | true | false
+ *      message,
+ *      success: true | false,
+ * }
+ * 
+ */
 const Login = () => {
+    const authenticated = useSelector((state) => state.authenticated);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const onSubmit = (values) => {
-        console.log('Success:', values);
+        dispatch(queryAuthenticated(values));
     };
     return (
         <div className="container-form-login">
@@ -49,6 +63,18 @@ const Login = () => {
                 >
                     <Input.Password size="small" />
                 </Form.Item>
+                {authenticated.message && <Form.Item
+                    wrapperCol={{
+                        offset: 8,
+                        span: 14,
+                    }}
+                >
+
+                    <Alert
+                        type={authenticated.message && !authenticated.success ? 'error' : 'success'}
+                        message={authenticated.message}
+                    />
+                </Form.Item>}
                 <Form.Item
                     wrapperCol={{
                         offset: 8,
@@ -56,7 +82,7 @@ const Login = () => {
                     }}
                 >
                     <div className="btn">
-                        <Button size="small" htmlType="submit">
+                        <Button size="small" htmlType="submit" loading={authenticated.isLoading}>
                             Đăng nhập
                         </Button>
                         <Button
